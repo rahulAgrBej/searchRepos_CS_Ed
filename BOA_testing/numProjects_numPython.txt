@@ -1,0 +1,8 @@
+p: Project = input;
+counts: output sum of int;
+total: output sum of int;
+
+total << 1;
+
+exists (i: int; match(`^python$`, lowercase(p.programming_languages[i])))
+    counts << 1;
