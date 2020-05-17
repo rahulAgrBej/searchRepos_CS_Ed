@@ -4,6 +4,7 @@ total: output sum of int;
 
 total << 1;
 
-foreach (i: int; def(p.code_repositories[i]))
-    if (p.code_repositories[i].kind == RepositoryKind.GIT)
-        fs[p.code_repositories[i].url] << getsnapshot(p.code_repositories[i]);
+exists(plangs: int; match(`^python$`, lowercase(p.programming_languages[plangs])))
+    foreach (i: int; def(p.code_repositories[i]))
+        if (p.code_repositories[i].kind == RepositoryKind.GIT)
+            fs[p.code_repositories[i].url] << getsnapshot(p.code_repositories[i]);
