@@ -1,0 +1,5 @@
+p: Project = input;
+counts: output sum of int;
+
+if (len(p.programming_languages) > 1)
+    counts << 1;
