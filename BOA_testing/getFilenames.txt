@@ -1,10 +1,13 @@
 p: Project = input;
-fs: output collection[string] of array of ChangedFile;
+numFiles: output sum of int;
 total: output sum of int;
+fs: output collection[string] of array of ChangedFile;
 
 total << 1;
 
 exists(plangs: int; match(`^python$`, lowercase(p.programming_languages[plangs])))
     foreach (i: int; def(p.code_repositories[i]))
-        if (p.code_repositories[i].kind == RepositoryKind.GIT)
+        if (p.code_repositories[i].kind == RepositoryKind.GIT) {
+            numFiles << len(getsnapshot(p.code_repositories[i], "OTHER"));
             fs[p.code_repositories[i].url] << getsnapshot(p.code_repositories[i], "OTHER");
+        }
