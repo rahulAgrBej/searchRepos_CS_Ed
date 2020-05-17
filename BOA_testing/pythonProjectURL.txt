@@ -1,0 +1,6 @@
+# which projects support multiple OSes?
+p: Project = input;
+counts: output collection[string] of string;
+
+foreach (i: int; match(`^python$`, lowercase(p.programming_languages[i])))
+    counts[p.id] << p.project_url;
