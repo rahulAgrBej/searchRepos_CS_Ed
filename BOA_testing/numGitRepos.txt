@@ -1,0 +1,9 @@
+p: Project = input;
+counts: output sum of int;
+total: output sum of int;
+
+total << 1;
+
+foreach (i: int; def(p.code_repositories[i]))
+    if (p.code_repositories[i].kind == RepositoryKind.GIT)
+        counts << 1;
