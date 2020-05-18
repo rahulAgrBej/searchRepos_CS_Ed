@@ -1,0 +1,47 @@
+p: Project = input;
+repoPercents: output collection[string] of float;
+pfiles: output collection[string] of string;
+gitPythonRepos: output sum of int;
+numPfiles: output sum of int;
+
+# checks if this project contains any python
+exists(plangs: int; match(`^python$`, lowercase(p.programming_languages[plangs]))) {
+    # goes through every code repository in the project
+    foreach (i: int; def(p.code_repositories[i])) {
+        # checks to see if its a GIT repository
+        if (p.code_repositories[i].kind == RepositoryKind.GIT) {
+            
+            gitPythonRepos << 1;
+            
+            snaps: array of ChangedFile;
+            snaps = getsnapshot(p.code_repositories[i], "OTHER");
+            
+            # checks to see if there are any files in the repository
+            if (len(snaps) > 0) {
+                
+                percentage: float;
+                percentage = 0.0;
+                
+                numPythonFiles: float;
+                numPythonFiles = 0.0;
+                
+                # goes through each file and checks to see if it is a python file
+                foreach (cf: int; def(snaps[cf])) {
+                    file_name: string;
+                    file_name = snaps[cf].name;
+                    
+                    # if file ends with .py then add to results
+                    if (match("\\.py$", file_name)) {
+                        pfiles[p.code_repositories[i].url] << file_name;
+                        numPythonFiles = numPythonFiles + 1.0;
+                        numPfiles << 1;
+                    } # if
+                } # foreach
+                
+                # calculates percentage of python files in the repository
+                percentage = (numPythonFiles / len(snaps)) * 100;
+                repoPercents[p.code_repositories[i].url] << percentage;
+            } # if
+        } # if
+    } # foreach
+} # exists
