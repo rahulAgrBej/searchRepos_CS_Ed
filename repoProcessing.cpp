@@ -17,13 +17,14 @@ class repoURL
     private:
 
         string url;
-        double pythonPercentage;
+        double pyPercent;
 
     public:
 
         repoURL(string urlIn, double percentIn);
+        string getURL();
+        double getPyPercent();
 };
-
 
 int main(int argc, char * argv[])
 {
@@ -34,6 +35,25 @@ int main(int argc, char * argv[])
     // push preprocessed repo data to priority to sort URLS based off of highest percentage first
 
     return 0;
+}
+
+// constructor for repoURL
+repoURL::repoURL(string urlIn, double percentIn)
+{
+    url = urlIn;
+    pyPercent = percentIn;
+}
+
+// getter function - returns string url
+string repoURL::getURL()
+{
+    return url;
+}
+
+// getter function - returns pyPercent
+double repoURL::getPyPercent()
+{
+    return pyPercent;
 }
 
 // returns a priority queue
