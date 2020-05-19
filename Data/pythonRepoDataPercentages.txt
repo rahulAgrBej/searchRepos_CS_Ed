@@ -1,4 +1,4 @@
-gitPythonRepos[] = 20477
+gitPythonRepos[] = 15327
 repoPercents[https://github.com/0-kaladin/dalvik.git] = 0.06681142475363287
 repoPercents[https://github.com/0-kaladin/platform_bionic.git] = 0.38402457757296465
 repoPercents[https://github.com/0002647302/FullSailAndroid.git] = 10.526315789473683
