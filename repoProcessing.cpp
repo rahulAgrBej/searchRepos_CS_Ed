@@ -52,9 +52,9 @@ class pyPercentCompare
 int main(int argc, char * argv[])
 {
 
-    if (argc != 2)
+    if (argc != 3)
     {
-        cout << "Please include a filepath!" << endl;
+        cout << "Make sure to include inFile and outFile paths" << endl;
         return 0;
     }
 
@@ -100,25 +100,24 @@ int main(int argc, char * argv[])
         double percent = 0.0;
         ss >> percent;
 
+        // push preprocessed repo data to priority to sort URLS based off of highest percentage first
         repoURL repo(gitRepo, percent);
         repoPQ.push(repo);
     }
 
-    cout << "TESTING PQ" << endl;
-    cout << repoPQ.top().getURL() << endl;
-    cout << repoPQ.top().getPyPercent() << endl;
-    cout << "size: " << repoPQ.size() << endl;
+    // closes file
+    inFile.close();
 
-    repoPQ.pop();
-    cout << "size: " << repoPQ.size() << endl;
-    cout << repoPQ.top().getURL() << endl;
-    cout <<"percent " << repoPQ.top().getPyPercent() << endl;
-    cout << "size: " << repoPQ.size() << endl;
+    // starts writing to result file
+    ofstream outFile(argv[2], ofstream::out);
 
-    repoPQ.pop();
-    cout << "size: " << repoPQ.size() << endl;
+    for (int j = 0; j < repoCount; ++j)
+    {
+        outFile << repoPQ.top().getURL() << " " << repoPQ.top().getPyPercent() << endl;
+        repoPQ.pop();
+    }
 
-    // push preprocessed repo data to priority to sort URLS based off of highest percentage first
+    outFile.close();
 
     return 0;
 }
@@ -140,12 +139,4 @@ string repoURL::getURL() const
 double repoURL::getPyPercent() const
 {
     return pyPercent;
-}
-
-// returns a priority queue
-priority_queue<string> buildPQ()
-{
-    priority_queue<string> pq;
-
-    return pq;
 }
