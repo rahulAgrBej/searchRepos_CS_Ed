@@ -110,10 +110,12 @@ int main(int argc, char * argv[])
 
     // starts writing to result file
     ofstream outFile(argv[2], ofstream::out);
+    
+    outFile << repoCount << endl;
 
     for (int j = 0; j < repoCount; ++j)
     {
-        outFile << repoPQ.top().getURL() << " " << repoPQ.top().getPyPercent() << endl;
+        outFile << repoPQ.top().getURL() /*<< " " << repoPQ.top().getPyPercent()*/ << endl;
         repoPQ.pop();
     }
 
