@@ -63,11 +63,13 @@ for idx in range(repoTotal):
 
 repoFile.close()
 
+# opening file to write all the URL of the desired files
+desiredFiles = open('Data/desiredFiles.txt', 'w')
 
 # making requests to github for each repoName
 TIME_ALOTTED = time.perf_counter() + 60
 
-for i in range(60):
+for i in range(repoTotal):
 
     # update TIME_ALOTTED every 60 seconds if there are less than 30 reqs happening per min
     currTime = time.perf_counter()
@@ -86,4 +88,7 @@ for i in range(60):
             filePath = it['path']
             repoFullName = it['repository']['full_name']
             gitFileContentsURL = "https://api.github.com/repos/" + repoFullName + '/contents/' + filePath
-            print(gitFileContentsURL)
+            desiredFiles.write(gitFileContentsURL)
+            desiredFiles.write('\n')
+
+desiredFiles.close()
