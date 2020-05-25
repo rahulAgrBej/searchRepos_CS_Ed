@@ -1,44 +1,38 @@
 # Github API requester
 import queue
 import requests
-from ratelimit import limits, RateLimitException
-from backoff import on_exception, expo
 import time
+from datetime import datetime
+import math
 
 ONE_MINUTE = 60
-TIME_ALOTTED = time.perf_counter() + 60
 
-def backoff_hdlr(details):
-    
-    # using the global variable LAST_TIME
-    global TIME_ALOTTED
-
-    # wait the minimum time necessary before we can make another request
-    currTime = time.perf_counter()
-    waitTime = TIME_ALOTTED - currTime
-    time.sleep(waitTime)
-
-    # update the time alotted for another 30 requests to be made
-    TIME_ALOTTED = time.perf_counter() + 60
-
-    return None
-    
-
-# this decoration will not allow this function to make more than 30 API calls per minute
-# if rate is exceeded then will wait 60 seconds to make another request and then use an exponential back off method
-@on_exception(expo, RateLimitException, on_backoff=backoff_hdlr, max_tries=8)
-@limits(calls=30, period=ONE_MINUTE)
 def searchGitAPI(repoName, authCreds):
     
     # prep github API call to look for python files that include BeautifulSoup
     gitAPIQuery = 'https://api.github.com/search/code?q=BeautifulSoup+in:file+language:python+repo:'
     fullQuery = gitAPIQuery + repoName
     response = requests.get(fullQuery, auth=authCreds)
+    if response.status_code != 200:
+        print(response)
+        print(response.content)
+
+    # check the request header to see if there are any remaining requests for this window
+    reqsRemaining = int(response.headers['X-RateLimit-Remaining'])
+    waitTime = 0
+    
+    # check to see when X-RateLimit-Reset happens to resume requests (in UTC epoch seconds)
+    if (reqsRemaining == 0):
+        reqReset = datetime.fromtimestamp(int(response.headers['X-RateLimit-Reset']))
+        currTime = datetime.now()
+        waitTime = math.ceil((reqReset - currTime).total_seconds())
+        if waitTime == 0:
+            waitTime = 1
 
     if response.status_code != 200:
-        return {'total_count': 0}
+        return {'total_count': 0}, waitTime
 
-    return response.json()
+    return response.json(), waitTime
 
 # read file for authentication information
 authFile = open('authInfo.txt', 'r')
@@ -67,18 +61,12 @@ repoFile.close()
 desiredFiles = open('Data/desiredFiles.txt', 'w')
 
 # making requests to github for each repoName
-TIME_ALOTTED = time.perf_counter() + 60
 
 for i in range(repoTotal):
 
-    # update TIME_ALOTTED every 60 seconds if there are less than 30 reqs happening per min
-    currTime = time.perf_counter()
-    if (currTime > TIME_ALOTTED):
-        TIME_ALOTTED = time.perf_counter() + 60
-    
     # make a req for the new repoName
     currRepo = repoQueue.get()
-    resp = searchGitAPI(currRepo, (username, token))
+    resp, waitTime = searchGitAPI(currRepo, (username, token))
 
     # if there are any results record them
     if resp['total_count'] > 0:
@@ -90,5 +78,11 @@ for i in range(repoTotal):
             gitFileContentsURL = "https://api.github.com/repos/" + repoFullName + '/contents/' + filePath
             desiredFiles.write(gitFileContentsURL)
             desiredFiles.write('\n')
+    
+    if waitTime > 0:
+        time.sleep(waitTime)
+
+    if i % 100 == 0:
+        print(f'Requested {i} so far')
 
 desiredFiles.close()
