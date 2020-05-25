@@ -4,7 +4,6 @@ import requests
 from ratelimit import limits, RateLimitException
 from backoff import on_exception, expo
 import time
-import pprint
 
 ONE_MINUTE = 60
 TIME_ALOTTED = time.perf_counter() + 60
@@ -17,8 +16,6 @@ def backoff_hdlr(details):
     # wait the minimum time necessary before we can make another request
     currTime = time.perf_counter()
     waitTime = TIME_ALOTTED - currTime
-    print("SLEEPS")
-    print(waitTime)
     time.sleep(waitTime)
 
     # update the time alotted for another 30 requests to be made
@@ -31,7 +28,7 @@ def backoff_hdlr(details):
 # if rate is exceeded then will wait 60 seconds to make another request and then use an exponential back off method
 @on_exception(expo, RateLimitException, on_backoff=backoff_hdlr, max_tries=8)
 @limits(calls=30, period=ONE_MINUTE)
-def callGitAPI(repoName, authCreds):
+def searchGitAPI(repoName, authCreds):
     
     # prep github API call to look for python files that include BeautifulSoup
     gitAPIQuery = 'https://api.github.com/search/code?q=BeautifulSoup+in:file+language:python+repo:'
@@ -79,11 +76,14 @@ for i in range(60):
     
     # make a req for the new repoName
     currRepo = repoQueue.get()
-    resp = callGitAPI(currRepo, (username, token))
+    resp = searchGitAPI(currRepo, (username, token))
 
     # if there are any results record them
     if resp['total_count'] > 0:
         for it in resp['items']:
-            it['repository']
-        pp = pprint.PrettyPrinter(indent=3)
-        pp.pprint(resp)
+            
+            # form correct get contents URL request
+            filePath = it['path']
+            repoFullName = it['repository']['full_name']
+            gitFileContentsURL = "https://api.github.com/repos/" + repoFullName + '/contents/' + filePath
+            print(gitFileContentsURL)
