@@ -80,6 +80,8 @@ for i in range(repoTotal):
             desiredFiles.write(gitFileContentsURL)
             desiredFiles.write('\n')
     
+    time.sleep(2)
+    
     if waitTime > 0:
         time.sleep(waitTime)
 
