@@ -5,7 +5,6 @@ import time
 from datetime import datetime
 import math
 
-ONE_MINUTE = 60
 
 def searchGitAPI(repoName, authCreds):
     
@@ -13,9 +12,13 @@ def searchGitAPI(repoName, authCreds):
     gitAPIQuery = 'https://api.github.com/search/code?q=BeautifulSoup+in:file+language:python+repo:'
     fullQuery = gitAPIQuery + repoName
     response = requests.get(fullQuery, auth=authCreds)
-    if response.status_code != 200:
-        print(response)
-        print(response.content)
+    
+    print(response.status_code)
+    
+    while response.status_code == 403:
+        time.sleep(60)
+        print('retrying previous 403 request')
+        response = requests.get(fullQuery, auth=authCreds)
 
     # check the request header to see if there are any remaining requests for this window
     reqsRemaining = int(response.headers['X-RateLimit-Remaining'])
@@ -26,8 +29,6 @@ def searchGitAPI(repoName, authCreds):
         reqReset = datetime.fromtimestamp(int(response.headers['X-RateLimit-Reset']))
         currTime = datetime.now()
         waitTime = math.ceil((reqReset - currTime).total_seconds())
-        if waitTime == 0:
-            waitTime = 1
 
     if response.status_code != 200:
         return {'total_count': 0}, waitTime
