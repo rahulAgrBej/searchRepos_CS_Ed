@@ -7,10 +7,9 @@ contentURLs = contentURLFile.readlines()
 contentURLFile.close()
 
 authFile = open('authInfo.txt', 'r')
-username = authFile.readline()
-secret = authFile.readline()
+username = authFile.readline().rstrip('\n')
+secret = authFile.readline().rstrip('\n')
 authFile.close()
-
 
 # gets contents of all desired files and saves them
 for i in range(len(contentURLs)):
@@ -24,7 +23,7 @@ for i in range(len(contentURLs)):
      print(f'response code: {resp.status_code}')
      print(resultData.keys())
      print(resultData['name'])
-     print(f'file size: {resultData["size"]}')
+     print(f'file size: {resultData['size']}')
 
      fileName = resultData['name']
      fileBytesEncoded = resultData['content']
