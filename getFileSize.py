@@ -46,4 +46,4 @@ for i in range(len(urls)):
     currURL = urls[i].rstrip('\n')
     sizeSum += getSize(currURL, (username, secret))
 
-print(f'total file size: {sumSize}')
+print(f'total file size: {sizeSum}')
