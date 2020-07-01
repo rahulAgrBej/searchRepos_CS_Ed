@@ -101,5 +101,11 @@ soupImports = [
 
 dataFolder = 'Data/Desired_Files'
 relevantFileNames = importBasedPrune(dataFolder, soupImports)
-print(relevantFileNames)
-print(len(relevantFileNames))
+
+fOut = open('Data/prunedFiles.txt', 'w')
+fOut.write(str(len(relevantFileNames)) + '\n')
+
+for relFile in relevantFileNames:
+    fOut.write(relFile + '\n')
+
+fOut.close()
