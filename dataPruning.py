@@ -1,5 +1,6 @@
 import os
 import hashlib
+import re
 
 # creates a SHA-1 hash of a file
 def hashFile(filePath):
@@ -13,6 +14,8 @@ def hashFile(filePath):
     while chunk != b'':
         chunk = f.read(1024)
         h.update(chunk)
+    
+    f.close()
     
     return h.hexdigest()
 
@@ -34,8 +37,69 @@ def findDuplicates(dirName):
     
     return duplicates
 
-dataFolderPath = 'Data/Desired_Files'
-dataDuplicates = findDuplicates(dataFolderPath)
-print(dataDuplicates)
-print(len(dataDuplicates))
+# will check if a file has the importStatements you are looking for
+def checkImports(filePath, importStatements):
+
+    f = open(filePath, 'r')
+    fContents = f.read()
+    f.close()
+
+    regexStr = ""
+
+    for i in range(len(importStatements)):
+        regexStr += importStatements[i]
+        
+        if (i < (len(importStatements) - 1)):
+            regexStr += '|'
+
+    results = re.findall(regexStr, fContents)
+
+    if len(results) > 0:
+        return True
+
+    return False
+
+
+def importBasedPrune(dirName, importStatements):
+
+    fileNames = os.listdir(dirName)
+    duplicates = findDuplicates(dirName)\
+
+    fileNames = sorted(fileNames)
+    duplicates = sorted(duplicates)
+    
+    dupIdx = 0
+
+    relevantFileNames = []
+    
+    for idx in range(len(fileNames)):
+        
+        currFileName = fileNames[idx]
+        currDupName = duplicates[dupIdx]
+        
+        if (currFileName != currDupName):
+            filePath = os.path.join(dirName, currFileName)
+            hasImports = checkImports(filePath, importStatements)
             
+            if hasImports:
+                relevantFileNames.append(currFileName)
+        elif (currFileName == currDupName):
+            dupIdx += 1
+        
+        if (dupIdx == len(duplicates)):
+            break
+    
+    
+    return relevantFileNames
+
+soupImports = [
+    'import bs4',
+    'from bs4 import BeautifulSoup',
+    'import BeautifulSoup',
+    'from BeautifulSoup import BeautifulSoup'
+    ]
+
+dataFolder = 'Data/Desired_Files'
+relevantFileNames = importBasedPrune(dataFolder, soupImports)
+print(relevantFileNames)
+print(len(relevantFileNames))
