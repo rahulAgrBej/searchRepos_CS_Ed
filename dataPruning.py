@@ -2,6 +2,19 @@ import os
 import hashlib
 import re
 
+# builds a regexOR expression
+def buildRegexOR(exprList):
+
+    regexOR = ''
+
+    for i in range(len(exprList)):
+        regexOR += exprList[i]
+
+        if (i < (len(exprList) - 1)):
+            regexOR += '|'
+
+    return regexOR
+
 # creates a SHA-1 hash of a file
 def hashFile(filePath):
 
@@ -44,13 +57,7 @@ def checkImports(filePath, importStatements):
     fContents = f.read()
     f.close()
 
-    regexStr = ""
-
-    for i in range(len(importStatements)):
-        regexStr += importStatements[i]
-        
-        if (i < (len(importStatements) - 1)):
-            regexStr += '|'
+    regexStr = buildRegexOR(importStatements)
 
     results = re.findall(regexStr, fContents)
 
@@ -91,6 +98,8 @@ def importBasedPrune(dirName, importStatements):
     
     
     return relevantFileNames
+
+
 
 soupImports = [
     'import bs4',
