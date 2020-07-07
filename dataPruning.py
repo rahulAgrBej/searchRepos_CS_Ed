@@ -117,7 +117,7 @@ soupImports = [
     'from BeautifulSoup import BeautifulSoup'
     ]
 
-constrStatement = 'BeautifulSoup\('
+constrStatement = '= BeautifulSoup\('
 
 funcStatements = [
     'find\(',
