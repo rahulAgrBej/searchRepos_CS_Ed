@@ -51,7 +51,7 @@ def findDuplicates(dirName):
     return duplicates
 
 # will check if a file has the importStatements you are looking for
-def checkImports(filePath, importStatements, constructorStatements, funcStatements):
+def checkImports(filePath, importStatements, constructorStatements, funcStatements, tagsStatements):
 
     f = open(filePath, 'r')
     fContents = f.read()
@@ -65,8 +65,12 @@ def checkImports(filePath, importStatements, constructorStatements, funcStatemen
         constructorRes = re.findall(constructorStatements, fContents)
         if len(constructorRes) > 0:
             regexFunc = buildRegexOR(funcStatements)
+            regexTags = buildRegexOR(tagsStatements)
             funcRes = re.findall(regexFunc, fContents)
             if len(funcRes) <= 0:
+                return False
+            tagsRes = re.findall(regexTags, fContents)
+            if len(tagsRes) <= 0:
                 return False
         else:
             return False
@@ -75,7 +79,7 @@ def checkImports(filePath, importStatements, constructorStatements, funcStatemen
     return False
 
 
-def importBasedPrune(dirName, importStatements, constructorStatements, funcStatements):
+def importBasedPrune(dirName, importStatements, constructorStatements, funcStatements, tagsStatements):
 
     fileNames = os.listdir(dirName)
     duplicates = findDuplicates(dirName)\
@@ -94,7 +98,7 @@ def importBasedPrune(dirName, importStatements, constructorStatements, funcState
         
         if (currFileName != currDupName):
             filePath = os.path.join(dirName, currFileName)
-            hasImports = checkImports(filePath, importStatements, constructorStatements, funcStatements)
+            hasImports = checkImports(filePath, importStatements, constructorStatements, funcStatements, tagsStatements)
             
             if hasImports:
                 relevantFileNames.append(currFileName)
@@ -124,8 +128,16 @@ funcStatements = [
     'find_all\('
 ]
 
+possibleTags = [
+    'get\(',
+    '\.text',
+    '\.parent',
+    ''
+
+]
+
 dataFolder = 'Data/Desired_Files'
-relevantFileNames = importBasedPrune(dataFolder, soupImports, constrStatement, funcStatements)
+relevantFileNames = importBasedPrune(dataFolder, soupImports, constrStatement, funcStatements, possibleTags)
 
 fOut = open('Data/prunedFiles.txt', 'w')
 fOut.write(str(len(relevantFileNames)) + '\n')
