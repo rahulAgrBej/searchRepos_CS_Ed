@@ -21,7 +21,7 @@ for line in mossLines:
     percent0 = int(file0[1][1:-2])
     percent1 = int(file1[1][1:-2])
 
-    if (percent0 >= similarityThreshold) and (percent1 >= similarityThreshold):
+    if (percent0 >= similarityThreshold) or (percent1 >= similarityThreshold):
         if ((not (name0 in clusters)) and (not (name1 in clusters))):
             clusters[name0] = newClusterNum
             clusters[name1] = newClusterNum
