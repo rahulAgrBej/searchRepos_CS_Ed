@@ -57,24 +57,34 @@ def checkImports(filePath, importStatements, constructorStatements, funcStatemen
     fContents = f.read()
     f.close()
 
-    regexStr = buildRegexOR(importStatements)
+    # first check if this is a test file
+    testExprs = [
+        'import unittest',
+        '(unittest.TestCase)',
+        'from bs4.testing import'
+    ]
 
-    results = re.findall(regexStr, fContents)
+    testStr = buildRegexOR(testExprs)
+    testResults = re.findall(testStr, fContents)
 
-    if len(results) > 0:
-        constructorRes = re.findall(constructorStatements, fContents)
-        if len(constructorRes) > 0:
-            regexFunc = buildRegexOR(funcStatements)
-            regexTags = buildRegexOR(tagsStatements)
-            funcRes = re.findall(regexFunc, fContents)
-            if len(funcRes) <= 0:
+    if len(testResults) == 0:
+        regexStr = buildRegexOR(importStatements)
+        results = re.findall(regexStr, fContents)
+
+        if len(results) > 0:
+            constructorRes = re.findall(constructorStatements, fContents)
+            if len(constructorRes) > 0:
+                regexFunc = buildRegexOR(funcStatements)
+                regexTags = buildRegexOR(tagsStatements)
+                funcRes = re.findall(regexFunc, fContents)
+                if len(funcRes) <= 0:
+                    return False
+                tagsRes = re.findall(regexTags, fContents)
+                if len(tagsRes) <= 0:
+                    return False
+            else:
                 return False
-            tagsRes = re.findall(regexTags, fContents)
-            if len(tagsRes) <= 0:
-                return False
-        else:
-            return False
-        return True
+            return True
 
     return False
 
@@ -131,9 +141,7 @@ funcStatements = [
 possibleTags = [
     'get\(',
     '\.text',
-    '\.parent',
-    ''
-
+    '\.parent'
 ]
 
 dataFolder = 'Data/Desired_Files'
